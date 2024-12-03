@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node Express Website</title>
+
+    <!-- Bootstrap সিএসএস লিংক -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+    <!-- হেডার টাইটেল -->
+    <h1>My First Node Express Website</h1>
+    <p id="vegetable"> </p> <!-- এখানে ডেটা দেখাবে -->
+
+    <div class="container">
+        <div class="col">
+            <h2>Add Your Favorite Vegetable</h2>
+            <!-- ইনপুট বক্স নতুন ভেজিটেবল যোগ করার জন্য -->
+            <input type="text" class="form-control" id="vegetables">
+            <!-- নতুন ভেজিটেবল যোগ করার জন্য বাটন -->
+            <button class="btn btn-success" id="addVegetable">ADD VEG</button>
+        </div>
+
+
+        <!-- Update Section -->
+    <h2>Update Vegetable</h2>
+    <input type="number" id="vegId" placeholder="Enter vegetable ID to update">
+    <input type="text" id="updateName" placeholder="Enter updated name">
+    <!-- Update price -->
+    <input type="number" id="updatePrice" placeholder="Enter updated price">
+    <button id="updateVeg">Update Vegetable</button>
+
+
+
+        <!-- delete Section -->
+    <h2>Delete Vegetable</h2>
+<input type="number" id="deleteVegId" placeholder="Enter vegetable ID to delete">
+<button id="deleteVeg">Delete Vegetable</button>
+
+
+
+    </div>
+
+    
+
+    <script>
+        // GET সার্ভার থেকে নির্দিষ্ট ভেজিটেবল আনতে ফেচ এপিআই
+        fetch('http://localhost:4000/veg/1') 
+            .then(res => res.json()) // রেসপন্সকে JSON ফরম্যাটে রূপান্তর
+            .then(data => {
+                // প্রাপ্ত ডেটা প্যারাগ্রাফে দেখাও
+                document.getElementById('vegetable').innerText = `ID: ${data.id}\nName: ${data.name}\nColor: ${data.color}\nPrice: ${data.price}`;
+                
+            });
+
+
+            
+
+        // POST নতুন ভেজিটেবল যোগ করার জন্য POST রিকোয়েস্ট পাঠানো
+        const btnAddVegetable = document.getElementById('addVegetable');
+        btnAddVegetable.addEventListener('click', () => {
+            // ইনপুট বক্স থেকে ডেটা নাও
+            const newVeg = { name: document.getElementById('vegetables').value };
+            // ফেচ এপিআই দিয়ে POST রিকোয়েস্ট
+            fetch('http://localhost:4000/addVeg', {
+                method: 'POST', // রিকোয়েস্ট টাইপ POST
+                headers: { 'Content-Type': 'application/json' }, // JSON ফরম্যাটে ডেটা পাঠানো
+                body: JSON.stringify(newVeg), // ইনপুট ডেটা JSON-এ রূপান্তর
+            })
+            .then(res => res.json()) // সার্ভার রেসপন্স JSON-এ রূপান্তর
+            .then(data => console.log(data)); // কনসোলে যোগ হওয়া ডেটা দেখাও
+        });
+
+
+
+
+
+
+
+
+        // PUT request to update a vegetable
+        document.getElementById('updateVeg').addEventListener('click', () => {
+            const id = parseInt(document.getElementById('vegId').value); // ইনপুট থেকে "ID" নেওয়া
+            const updatedVeg = {       // এখানে সব তথ্য একসাথে যাবে
+                name: document.getElementById('updateName').value, // নতুন "নাম" নেওয়া
+                price: parseFloat(document.getElementById('updatePrice').value) // নতুন প্রাইস
+            };
+
+                    fetch(`http://localhost:4000/veg/${id}`, { // সার্ভারে PUT রিকোয়েস্ট পাঠানো
+                     method: 'PUT', // HTTP মেথড PUT
+                     headers: { 'Content-Type': 'application/json' }, // ডেটা JSON ফরম্যাটে পাঠানো হবে
+                     body: JSON.stringify(updatedVeg) // নাম ও প্রাইস উভয়ই পাঠানো
+                    })
+                    .then(res => res.json()) // সার্ভার থেকে পাওয়া রেসপন্স JSON-এ রূপান্তর
+                    .then(data => console.log('Updated:', data)); // আপডেট হওয়া ডেটা কনসোলে দেখানো
+                });
+
+
+                // Delete section
+                document.getElementById('deleteVeg').addEventListener('click', () => {
+                    const id = parseInt(document.getElementById('deleteVegId').value); // ইনপুট থেকে আইডি নেওয়া
+
+                    fetch(`http://localhost:4000/veg/${id}`, {
+                        method: 'DELETE' // DELETE রিকোয়েস্ট
+                    })
+                    .then(res => res.json()) // রেসপন্স JSON ফরম্যাটে নেওয়া
+                    .then(data => console.log('Deleted:', data)) // ডিলিট হওয়া ডেটা দেখানো
+                    .catch(err => console.error('Error:', err)); // এরর মেসেজ দেখানো
+                });
+
+
+        
+    </script>
+</body>
+</html>
